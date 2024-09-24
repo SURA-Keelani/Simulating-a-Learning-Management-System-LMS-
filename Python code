@@ -1,0 +1,100 @@
+users = {}
+current_user = None
+
+def run_the_system():
+    global current_user
+    while True:
+        if current_user is None:
+            action = input("Choose: \n1. Register \n2. Login \n3.logout : ")
+            if action == "1":
+                register_new_user()
+            elif action == "2":
+                login()
+            elif action == "3":
+                break
+        else:
+            print("Welcome,", current_user)
+            action = input("Choose: \n1. Register for a new course \n2. Retrieve courses \n3. Calculate average \n4. Number of users \n5. Delete account \n6. Logout: ")
+            if action == "1":
+                add_new_user_course()
+            elif action == "2":
+                print(get_student_courses())
+            elif action == "3":
+                print("Average:", calculating_the_average())
+            elif action == "4":
+                print("Number of users:", get_number_of_users())
+            elif action == "5":
+                remove_my_account()
+            elif action == "6":
+                current_user = None
+
+def register_new_user():
+    global users
+    username = input("Enter username in lowercase: ").lower()
+    if username in users:
+        print("Username already exists")
+        return
+    password = input("Enter password (at least 16 characters, with 2 special characters and 2 digits): ")
+    if not validate_password(username, password):
+        print("Invalid password!")
+        return
+    users[username] = {'password': password, 'courses': {}}
+    print("Registration successful!")
+
+def validate_password(username, password):
+    if len(password) < 16:
+        return False
+    if username in password:
+        return False
+    if sum(c.isdigit() for c in password) < 2:
+        return False
+    if sum(not c.isalnum() for c in password) < 2:
+        return False
+    return True
+
+def login():
+    global current_user
+    username = input("Enter username: ").lower()
+    password = input("Enter password: ")
+    if username in users and users[username]['password'] == password:
+        if current_user:
+            print(f"Logged out from {current_user}")
+        current_user = username
+        print("Login successful!")
+    else:
+        print("Invalid username or password!")
+
+def get_student_courses():
+    if current_user is None:
+        return "You must be logged in!"
+    return users[current_user]['courses']
+
+def add_new_user_course():
+    if current_user is None:
+        print("You must be logged in!")
+        return
+    course_name = input("Enter course name: ")
+    if course_name not in users[current_user]['courses']:
+        users[current_user]['courses'][course_name] = 0
+        print("Course added successfully!")
+    else:
+        print("Course already exists!")
+
+def calculating_the_average():
+    if current_user is None:
+        return "You must be logged in!"
+    grades = users[current_user]['courses'].values()
+    return sum(grades) / len(grades) if grades else 0
+
+def get_number_of_users():
+    return len(users)
+
+def remove_my_account():
+    global current_user
+    if current_user is not None:
+        del users[current_user]
+        current_user = None
+        print("Account deleted successfully!")
+
+
+run_the_system()
